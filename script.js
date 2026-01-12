@@ -88,6 +88,7 @@ let generationDisplay;
 let livingCellsDisplay;
 let clearBtn;
 let randomBtn;
+let add100Btn;
 let helpBtn;
 let modal;
 let closeBtn;
@@ -118,6 +119,7 @@ function initializeDOM() {
     livingCellsDisplay = document.getElementById('livingCells');
     clearBtn = document.getElementById('clearBtn');
     randomBtn = document.getElementById('randomBtn');
+    add100Btn = document.getElementById('add100Btn');
     helpBtn = document.getElementById('helpBtn');
     modal = document.getElementById('helpModal');
     closeBtn = document.querySelector('.close-btn');
@@ -181,6 +183,19 @@ function clearGrid() {
         }
     }
     generationCount = 0;
+    updateStats();
+    drawGrid();
+}
+
+// Add 100 random cells to the grid
+function add100RandomCells() {
+    for (let i = 0; i < 100; i++) {
+        const randomRow = Math.floor(Math.random() * rows);
+        const randomCol = Math.floor(Math.random() * cols);
+
+        grid[randomRow][randomCol] = 1;
+        opacityGrid[randomRow][randomCol] = 1.0;
+    }
     updateStats();
     drawGrid();
 }
@@ -528,6 +543,12 @@ function setupEventListeners() {
         randomizeGrid(INITIAL_FILL_PERCENTAGE);
         deselectPattern();
         if (isRunning) togglePlayPause();
+    });
+
+    // Add 100 cells button
+    add100Btn.addEventListener('click', () => {
+        add100RandomCells();
+        deselectPattern();
     });
 
     // Pattern buttons
