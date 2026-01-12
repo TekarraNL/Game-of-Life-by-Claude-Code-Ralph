@@ -50,6 +50,48 @@
                 <button id="clearBtn" class="secondary-btn">Clear Grid</button>
                 <button id="randomBtn" class="secondary-btn">Randomize</button>
 
+                <!-- Preset Patterns -->
+                <div class="patterns-section">
+                    <div class="section-header">
+                        <span class="section-title">Preset Patterns</span>
+                        <span id="patternStatus" class="pattern-status">Click to place</span>
+                    </div>
+                    <div class="pattern-grid">
+                        <button class="pattern-btn" data-pattern="glider" title="Glider - Travels diagonally">
+                            <span class="pattern-icon">🚀</span>
+                            <span class="pattern-name">Glider</span>
+                        </button>
+                        <button class="pattern-btn" data-pattern="lwss" title="Lightweight Spaceship">
+                            <span class="pattern-icon">✈️</span>
+                            <span class="pattern-name">LWSS</span>
+                        </button>
+                        <button class="pattern-btn" data-pattern="blinker" title="Blinker - Period 2 oscillator">
+                            <span class="pattern-icon">💫</span>
+                            <span class="pattern-name">Blinker</span>
+                        </button>
+                        <button class="pattern-btn" data-pattern="toad" title="Toad - Period 2 oscillator">
+                            <span class="pattern-icon">🐸</span>
+                            <span class="pattern-name">Toad</span>
+                        </button>
+                        <button class="pattern-btn" data-pattern="beacon" title="Beacon - Period 2 oscillator">
+                            <span class="pattern-icon">🔆</span>
+                            <span class="pattern-name">Beacon</span>
+                        </button>
+                        <button class="pattern-btn" data-pattern="pulsar" title="Pulsar - Period 3 oscillator">
+                            <span class="pattern-icon">⭐</span>
+                            <span class="pattern-name">Pulsar</span>
+                        </button>
+                        <button class="pattern-btn" data-pattern="gliderGun" title="Gosper Glider Gun - Creates gliders">
+                            <span class="pattern-icon">🔫</span>
+                            <span class="pattern-name">Gun</span>
+                        </button>
+                        <button class="pattern-btn" data-pattern="pentadecathlon" title="Pentadecathlon - Period 15 oscillator">
+                            <span class="pattern-icon">⚡</span>
+                            <span class="pattern-name">Penta</span>
+                        </button>
+                    </div>
+                </div>
+
                 <!-- Help Button -->
                 <button id="helpBtn" class="help-btn">
                     <span class="help-icon">?</span>
@@ -89,10 +131,20 @@
                 <h3>How to Use</h3>
                 <ul>
                     <li><strong>Click on cells</strong> to toggle them alive or dead</li>
+                    <li><strong>Preset Patterns</strong> - Click a pattern button, then click the grid to place it</li>
                     <li><strong>Start/Pause</strong> button to control the simulation</li>
                     <li><strong>Speed slider</strong> to adjust how fast generations evolve (1-10 per second)</li>
                     <li><strong>Clear Grid</strong> to remove all living cells</li>
                     <li><strong>Randomize</strong> to create a new random pattern (30% filled)</li>
+                </ul>
+            </div>
+
+            <div class="help-section">
+                <h3>Pattern Types</h3>
+                <ul>
+                    <li><strong>Spaceships:</strong> Glider, LWSS - Move across the grid</li>
+                    <li><strong>Oscillators:</strong> Blinker, Toad, Beacon, Pulsar, Pentadecathlon - Repeat patterns</li>
+                    <li><strong>Guns:</strong> Glider Gun - Creates a stream of gliders</li>
                 </ul>
             </div>
 

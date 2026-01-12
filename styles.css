@@ -214,6 +214,95 @@ input[type="range"]::-moz-range-thumb {
     transform: translateY(-2px);
 }
 
+/* Preset Patterns Section */
+.patterns-section {
+    padding: 15px;
+    background: var(--bg-panel-light);
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+.section-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.pattern-status {
+    font-size: 11px;
+    color: var(--text-secondary);
+    font-style: italic;
+}
+
+.pattern-status.active {
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+.pattern-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+}
+
+.pattern-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 10px 8px;
+    background: var(--bg-dark);
+    color: var(--text-primary);
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 11px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.pattern-btn:hover {
+    border-color: var(--primary-color);
+    background: var(--bg-panel);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+}
+
+.pattern-btn.active {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    border-color: var(--primary-color);
+    color: white;
+    box-shadow: 0 4px 15px rgba(99, 102, 241, 0.5);
+}
+
+.pattern-btn.active .pattern-icon {
+    transform: scale(1.2);
+}
+
+.pattern-icon {
+    font-size: 20px;
+    transition: transform 0.3s ease;
+}
+
+.pattern-name {
+    font-size: 11px;
+    font-weight: 600;
+}
+
 /* Help Button */
 .help-btn {
     display: flex;

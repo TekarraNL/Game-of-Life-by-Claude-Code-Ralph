@@ -2,6 +2,68 @@
 const CELL_SIZE = 10;
 const INITIAL_FILL_PERCENTAGE = 0.3;
 
+// Preset Patterns (1 = alive, 0 = dead)
+const PATTERNS = {
+    glider: [
+        [0, 1, 0],
+        [0, 0, 1],
+        [1, 1, 1]
+    ],
+    lwss: [ // Lightweight Spaceship
+        [0, 1, 0, 0, 1],
+        [1, 0, 0, 0, 0],
+        [1, 0, 0, 0, 1],
+        [1, 1, 1, 1, 0]
+    ],
+    blinker: [
+        [1, 1, 1]
+    ],
+    toad: [
+        [0, 1, 1, 1],
+        [1, 1, 1, 0]
+    ],
+    beacon: [
+        [1, 1, 0, 0],
+        [1, 1, 0, 0],
+        [0, 0, 1, 1],
+        [0, 0, 1, 1]
+    ],
+    pulsar: [
+        [0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1],
+        [1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1],
+        [1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1],
+        [0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0],
+        [1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1],
+        [1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1],
+        [1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0]
+    ],
+    gliderGun: [
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1],
+        [1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    ],
+    pentadecathlon: [
+        [0, 0, 1, 0, 0, 0, 0, 1, 0, 0],
+        [1, 1, 0, 1, 1, 1, 1, 0, 1, 1],
+        [0, 0, 1, 0, 0, 0, 0, 1, 0, 0]
+    ]
+};
+
+// Pattern Selection State
+let selectedPattern = null;
+
 // Game State
 let canvas;
 let ctx;
@@ -9,11 +71,14 @@ let cols;
 let rows;
 let grid = [];
 let nextGrid = [];
+let opacityGrid = []; // Track opacity for fade effect (0.0 to 1.0)
 let isRunning = false;
 let generationCount = 0;
 let speed = 3; // generations per second
 let lastUpdateTime = 0;
+let lastFadeUpdateTime = 0;
 let updateInterval = 1000 / speed;
+const FADE_DURATION = 1000; // 1 second to fade from alive to dead
 
 // DOM Elements
 let playPauseBtn;
@@ -27,6 +92,8 @@ let helpBtn;
 let modal;
 let closeBtn;
 let modalCloseBtn;
+let patternButtons;
+let patternStatus;
 
 // Initialize the game when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
@@ -55,6 +122,8 @@ function initializeDOM() {
     modal = document.getElementById('helpModal');
     closeBtn = document.querySelector('.close-btn');
     modalCloseBtn = document.querySelector('.modal-close-btn');
+    patternButtons = document.querySelectorAll('.pattern-btn');
+    patternStatus = document.getElementById('patternStatus');
 }
 
 // Initialize canvas size based on window size
@@ -74,13 +143,16 @@ function initializeCanvas() {
 function initializeGrid() {
     grid = [];
     nextGrid = [];
+    opacityGrid = [];
 
     for (let i = 0; i < rows; i++) {
         grid[i] = [];
         nextGrid[i] = [];
+        opacityGrid[i] = [];
         for (let j = 0; j < cols; j++) {
             grid[i][j] = 0;
             nextGrid[i][j] = 0;
+            opacityGrid[i][j] = 0.0;
         }
     }
 
@@ -92,6 +164,7 @@ function randomizeGrid(fillPercentage = 0.3) {
     for (let i = 0; i < rows; i++) {
         for (let j = 0; j < cols; j++) {
             grid[i][j] = Math.random() < fillPercentage ? 1 : 0;
+            opacityGrid[i][j] = grid[i][j]; // 1.0 for alive, 0.0 for dead
         }
     }
     generationCount = 0;
@@ -104,11 +177,64 @@ function clearGrid() {
     for (let i = 0; i < rows; i++) {
         for (let j = 0; j < cols; j++) {
             grid[i][j] = 0;
+            opacityGrid[i][j] = 0.0;
         }
     }
     generationCount = 0;
     updateStats();
     drawGrid();
+}
+
+// Place a pattern on the grid at specified position
+function placePattern(pattern, startRow, startCol) {
+    const patternData = PATTERNS[pattern];
+    if (!patternData) return;
+
+    for (let i = 0; i < patternData.length; i++) {
+        for (let j = 0; j < patternData[i].length; j++) {
+            const row = startRow + i;
+            const col = startCol + j;
+
+            // Check boundaries
+            if (row >= 0 && row < rows && col >= 0 && col < cols) {
+                grid[row][col] = patternData[i][j];
+                opacityGrid[row][col] = patternData[i][j]; // 1.0 for alive, 0.0 for dead
+            }
+        }
+    }
+
+    updateStats();
+    drawGrid();
+}
+
+// Select a pattern
+function selectPattern(pattern) {
+    selectedPattern = pattern;
+
+    // Update button states
+    patternButtons.forEach(btn => {
+        if (btn.dataset.pattern === pattern) {
+            btn.classList.add('active');
+        } else {
+            btn.classList.remove('active');
+        }
+    });
+
+    // Update status text
+    if (pattern) {
+        patternStatus.textContent = `Placing: ${pattern}`;
+        patternStatus.classList.add('active');
+        canvas.style.cursor = 'crosshair';
+    } else {
+        patternStatus.textContent = 'Click to place';
+        patternStatus.classList.remove('active');
+        canvas.style.cursor = 'pointer';
+    }
+}
+
+// Deselect pattern
+function deselectPattern() {
+    selectPattern(null);
 }
 
 // Count living neighbors for a cell
@@ -159,15 +285,46 @@ function updateGrid() {
         }
     }
 
-    // Copy nextGrid to grid
+    // Copy nextGrid to grid and update opacity
     for (let i = 0; i < rows; i++) {
         for (let j = 0; j < cols; j++) {
-            grid[i][j] = nextGrid[i][j];
+            const oldState = grid[i][j];
+            const newState = nextGrid[i][j];
+
+            grid[i][j] = newState;
+
+            // Update opacity based on state changes
+            if (newState === 1 && oldState === 0) {
+                // Cell is born - instantly full opacity
+                opacityGrid[i][j] = 1.0;
+            } else if (newState === 0 && oldState === 1) {
+                // Cell just died - keep at 1.0, will fade in updateFade()
+                opacityGrid[i][j] = 0.4;
+            }
+            // If cell stayed alive (1->1), keep opacity at 1.0
+            // If cell stayed dead (0->0), opacity will fade in updateFade()
         }
     }
 
     generationCount++;
     updateStats();
+}
+
+// Update fade effect for dead cells (runs every frame)
+function updateFade(deltaTime) {
+    const fadeStep = deltaTime / FADE_DURATION;
+
+    for (let i = 0; i < rows; i++) {
+        for (let j = 0; j < cols; j++) {
+            if (grid[i][j] === 0 && opacityGrid[i][j] > 0) {
+                // Cell is dead but still visible - fade it out
+                opacityGrid[i][j] = Math.max(0, opacityGrid[i][j] - fadeStep);
+            } else if (grid[i][j] === 1) {
+                // Cell is alive - ensure full opacity
+                opacityGrid[i][j] = 1.0;
+            }
+        }
+    }
 }
 
 // Draw the grid on canvas
@@ -177,14 +334,19 @@ function drawGrid() {
     // Draw cells
     for (let i = 0; i < rows; i++) {
         for (let j = 0; j < cols; j++) {
-            if (grid[i][j] === 1) {
-                // Living cell
-                ctx.fillStyle = '#10b981';
+            const opacity = opacityGrid[i][j];
+
+            if (opacity > 0) {
+                // Calculate color with opacity
+                const alpha = opacity.toFixed(2);
+                ctx.fillStyle = `rgba(16, 185, 129, ${alpha})`;
                 ctx.fillRect(j * CELL_SIZE, i * CELL_SIZE, CELL_SIZE, CELL_SIZE);
 
-                // Add a subtle glow effect
-                ctx.shadowBlur = 3;
-                ctx.shadowColor = '#10b981';
+                // Add a subtle glow effect (also with opacity)
+                if (grid[i][j] === 1) {
+                    ctx.shadowBlur = 3;
+                    ctx.shadowColor = `rgba(16, 185, 129, ${alpha})`;
+                }
             }
         }
     }
@@ -227,15 +389,25 @@ function updateStats() {
 
 // Main game loop
 function gameLoop(timestamp) {
+    // Update fade effect every frame (independent of simulation speed)
+    const fadeDelta = timestamp - lastFadeUpdateTime;
+    if (fadeDelta > 0) {
+        updateFade(fadeDelta);
+        lastFadeUpdateTime = timestamp;
+    }
+
+    // Update simulation based on speed setting
     if (isRunning) {
         const elapsed = timestamp - lastUpdateTime;
 
         if (elapsed >= updateInterval) {
             updateGrid();
-            drawGrid();
             lastUpdateTime = timestamp;
         }
     }
+
+    // Always redraw to show fade effect
+    drawGrid();
 
     requestAnimationFrame(gameLoop);
 }
@@ -264,7 +436,7 @@ function updateSpeed() {
     speedValue.textContent = `${speed}/s`;
 }
 
-// Handle canvas clicks to toggle cells
+// Handle canvas clicks to toggle cells or place patterns
 function handleCanvasClick(event) {
     const rect = canvas.getBoundingClientRect();
     const x = event.clientX - rect.left;
@@ -274,9 +446,17 @@ function handleCanvasClick(event) {
     const row = Math.floor(y / CELL_SIZE);
 
     if (row >= 0 && row < rows && col >= 0 && col < cols) {
-        grid[row][col] = grid[row][col] === 1 ? 0 : 1;
-        updateStats();
-        drawGrid();
+        if (selectedPattern) {
+            // Place the selected pattern
+            placePattern(selectedPattern, row, col);
+            deselectPattern();
+        } else {
+            // Toggle individual cell
+            grid[row][col] = grid[row][col] === 1 ? 0 : 1;
+            opacityGrid[row][col] = grid[row][col]; // Set opacity to match state
+            updateStats();
+            drawGrid();
+        }
     }
 }
 
@@ -285,7 +465,10 @@ let isDrawing = false;
 let lastDrawnCell = null;
 
 function handleCanvasMouseDown(event) {
-    isDrawing = true;
+    // Don't enable drawing mode if placing a pattern
+    if (!selectedPattern) {
+        isDrawing = true;
+    }
     handleCanvasClick(event);
 }
 
@@ -308,6 +491,7 @@ function handleCanvasMouseMove(event) {
     const cellKey = `${row},${col}`;
     if (cellKey !== lastDrawnCell && row >= 0 && row < rows && col >= 0 && col < cols) {
         grid[row][col] = 1; // Always set to alive when dragging
+        opacityGrid[row][col] = 1.0; // Full opacity
         lastDrawnCell = cellKey;
         updateStats();
         drawGrid();
@@ -335,13 +519,29 @@ function setupEventListeners() {
     // Clear button
     clearBtn.addEventListener('click', () => {
         clearGrid();
+        deselectPattern();
         if (isRunning) togglePlayPause();
     });
 
     // Random button
     randomBtn.addEventListener('click', () => {
         randomizeGrid(INITIAL_FILL_PERCENTAGE);
+        deselectPattern();
         if (isRunning) togglePlayPause();
+    });
+
+    // Pattern buttons
+    patternButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const pattern = btn.dataset.pattern;
+            if (selectedPattern === pattern) {
+                // Deselect if clicking the same pattern
+                deselectPattern();
+            } else {
+                // Select the new pattern
+                selectPattern(pattern);
+            }
+        });
     });
 
     // Canvas interactions
@@ -381,6 +581,8 @@ function setupEventListeners() {
             clearGrid();
         } else if (event.code === 'KeyR') {
             randomizeGrid(INITIAL_FILL_PERCENTAGE);
+        } else if (event.code === 'Escape') {
+            deselectPattern();
         }
     });
 }

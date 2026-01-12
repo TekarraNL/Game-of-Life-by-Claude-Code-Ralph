@@ -31,16 +31,39 @@ const INITIAL_FILL_PERCENTAGE = 0.3;
 - `CELL_SIZE`: Each cell is 10x10 pixels as per requirements
 - `INITIAL_FILL_PERCENTAGE`: 30% of cells start alive
 
-### 2. Game State (script.js:5-13)
+### 2. Preset Patterns (script.js:5-62)
+The application includes 8 classic Game of Life patterns:
+
+**Spaceships** (move across the grid):
+- `glider`: 3x3 pattern that travels diagonally
+- `lwss`: Lightweight Spaceship, 4x5 pattern that travels horizontally
+
+**Oscillators** (repeat in cycles):
+- `blinker`: 1x3 pattern, period 2
+- `toad`: 2x4 pattern, period 2
+- `beacon`: 4x4 pattern, period 2
+- `pulsar`: 13x13 pattern, period 3
+- `pentadecathlon`: 3x10 pattern, period 15
+
+**Guns** (generate spaceships):
+- `gliderGun`: Gosper Glider Gun, 9x36 pattern that creates gliders
+
+Each pattern is stored as a 2D array where 1 = alive, 0 = dead.
+
+### 3. Game State (script.js:67-81)
 Global variables tracking:
 - `grid`: Current generation state (2D array)
 - `nextGrid`: Next generation buffer
+- `opacityGrid`: Opacity values for fade effect (0.0 to 1.0)
 - `isRunning`: Whether simulation is active
 - `generationCount`: Number of generations elapsed
 - `speed`: Generations per second (default: 3)
+- `selectedPattern`: Currently selected pattern for placement (null if none)
+- `lastFadeUpdateTime`: Timestamp for fade animation timing
 - Canvas and timing variables
+- `FADE_DURATION`: 1000ms (1 second) for cells to fade from alive to dead
 
-### 3. Initialization Functions
+### 4. Initialization Functions
 
 #### `initializeDOM()` (script.js:27-43)
 - Caches references to all DOM elements
@@ -58,24 +81,42 @@ Global variables tracking:
 
 ### 4. Grid Management Functions
 
-#### `randomizeGrid(fillPercentage)` (script.js:74-84)
+#### `randomizeGrid(fillPercentage)` (script.js:158-168)
 - Randomly populates grid based on fill percentage
 - Default is 30% as per requirements
 - Resets generation count and updates display
 
-#### `clearGrid()` (script.js:86-96)
+#### `clearGrid()` (script.js:169-178)
 - Sets all cells to dead (0)
 - Resets generation count
 - Redraws the grid
 
-### 5. Game Logic - Conway's Rules
+### 5. Pattern Placement Functions
 
-#### `countNeighbors(row, col)` (script.js:98-117)
+#### `placePattern(pattern, startRow, startCol)` (script.js:180-199)
+- Places a preset pattern at specified grid position
+- Checks boundaries to prevent overflow
+- Updates display after placement
+
+#### `selectPattern(pattern)` (script.js:201-224)
+- Activates pattern placement mode
+- Updates button visual states
+- Changes cursor to crosshair
+- Updates status text
+
+#### `deselectPattern()` (script.js:226-229)
+- Deactivates pattern placement mode
+- Returns to normal cell toggle mode
+- Restores pointer cursor
+
+### 6. Game Logic - Conway's Rules
+
+#### `countNeighbors(row, col)` (script.js:231-250)
 - Counts living cells in 8 adjacent positions
 - Handles edge boundaries properly
 - Returns count (0-8)
 
-#### `updateGrid()` (script.js:119-158)
+#### `updateGrid()` (script.js:252-291)
 Implements Conway's Game of Life rules:
 
 **Birth**: Dead cell with exactly 3 neighbors becomes alive
@@ -106,75 +147,101 @@ if (neighbors > 3) {
 }
 ```
 
-### 6. Rendering
+### 7. Rendering
 
-#### `drawGrid()` (script.js:160-198)
-- Clears canvas
-- Draws living cells with green color (#10b981)
-- Adds glow effect for visual appeal
+#### `drawGrid()` (script.js:330-372)
+- Clears canvas every frame
+- Draws cells using RGBA color with opacity from opacityGrid
+- Only renders cells with opacity > 0 (optimization)
+- Living cells (grid value = 1) get full glow effect
+- Fading cells (grid value = 0, opacity > 0) appear dimmer without glow
+- Uses `rgba(16, 185, 129, ${opacity})` for smooth transparency
 - Draws grid lines for better visibility
 
-#### `updateStats()` (script.js:200-212)
+#### `updateStats()` (script.js:333-345)
 - Counts total living cells
 - Updates generation counter display
 - Updates living cells counter display
 
-### 7. Game Loop
+### 8. Fade Effect System
 
-#### `gameLoop(timestamp)` (script.js:214-225)
+#### `updateFade(deltaTime)` (script.js:313-328)
+- Updates opacity values for all cells every frame
+- Independent of simulation speed (runs in real-time)
+- Dead cells fade from opacity 1.0 to 0.0 over 1 second
+- Living cells maintain opacity 1.0
+- Uses delta time for smooth, consistent fading
+
+**Fade Logic:**
+- When cell dies: opacity starts at 1.0, decreases linearly over FADE_DURATION
+- When cell is born: opacity instantly set to 1.0
+- Fade rate: `deltaTime / 1000ms` per frame
+
+### 9. Game Loop
+
+#### `gameLoop(timestamp)` (script.js:390-413)
 - Uses `requestAnimationFrame` for smooth animation
-- Only updates when `isRunning` is true
-- Respects speed setting (updates per second)
-- Continuously runs to enable responsive drawing
+- Updates fade effect every frame (independent of simulation speed)
+- Updates simulation based on speed setting when running
+- Always redraws grid to show fade animation
+- Maintains separate timing for fade (lastFadeUpdateTime) and simulation (lastUpdateTime)
 
-### 8. User Interaction Functions
+### 10. User Interaction Functions
 
-#### `togglePlayPause()` (script.js:227-241)
+#### `togglePlayPause()` (script.js:360-374)
 - Switches between playing and paused states
 - Updates button icon (▶/⏸) and text
 - Manages timing for consistent frame rate
 
-#### `updateSpeed()` (script.js:243-247)
+#### `updateSpeed()` (script.js:376-382)
 - Reads slider value (1-10)
 - Updates interval calculation
 - Updates speed display
 
-#### `handleCanvasClick(event)` (script.js:249-262)
+#### `handleCanvasClick(event)` (script.js:384-405)
 - Converts mouse coordinates to grid position
-- Toggles cell state (alive ↔ dead)
+- If pattern selected: places pattern at clicked position and deselects
+- If no pattern: toggles individual cell state (alive ↔ dead)
 - Updates display immediately
 
-#### Canvas Drawing Functions (script.js:264-302)
-- `handleCanvasMouseDown`: Starts drawing mode
+#### Canvas Drawing Functions (script.js:407-438)
+- `handleCanvasMouseDown`: Starts drawing mode (disabled when placing patterns)
 - `handleCanvasMouseUp`: Stops drawing mode
 - `handleCanvasMouseMove`: Draws cells while dragging
 - Allows users to "paint" living cells
 
-### 9. Modal Management (script.js:304-313)
+### 11. Modal Management (script.js:501-513)
 - `showHelpModal()`: Displays help information
 - `hideHelpModal()`: Closes the modal
 
-### 10. Event Listeners Setup (script.js:315-374)
+### 12. Event Listeners Setup (script.js:515-592)
 
 Registers handlers for:
 - **Play/Pause button**: Space bar or button click
 - **Speed slider**: Real-time speed adjustment
-- **Clear button**: Removes all cells (also 'C' key)
-- **Randomize button**: Creates new pattern (also 'R' key)
-- **Canvas interactions**: Click and drag to edit cells
+- **Clear button**: Removes all cells and deselects patterns (also 'C' key)
+- **Randomize button**: Creates new pattern and deselects patterns (also 'R' key)
+- **Pattern buttons**: Select/deselect preset patterns for placement
+- **Canvas interactions**: Click to place patterns or drag to draw cells
 - **Help modal**: Show/hide with button or outside click
 - **Window resize**: Reinitializes canvas and grid
-- **Keyboard shortcuts**: Space (play/pause), C (clear), R (random)
+- **Keyboard shortcuts**:
+  - Space (play/pause)
+  - C (clear)
+  - R (random)
+  - Escape (deselect pattern)
 
 ## Data Structures
 
 ### Grid Representation
 ```javascript
 grid[row][col] = 0 or 1
+opacityGrid[row][col] = 0.0 to 1.0
 ```
-- `0`: Dead cell
-- `1`: Living cell
-- Two grids used (double buffering) to prevent race conditions
+- `grid`: Cell state (0 = dead, 1 = alive)
+- `opacityGrid`: Cell opacity for rendering (0.0 = invisible, 1.0 = full brightness)
+- Two grids used for state (double buffering) to prevent race conditions
+- Opacity grid enables smooth fade effect independent of game state
 
 ## Performance Optimizations
 
@@ -211,17 +278,32 @@ Uses CSS custom properties for consistent theming:
 3. **Speed Control**: Slider with visual feedback (1-10 generations/second)
 4. **Statistics Panel**: Real-time generation and population count
 5. **Secondary Actions**: Clear and Randomize buttons
-6. **Help Button**: Dashed border, bottom-aligned
+6. **Preset Patterns**: 8 pattern buttons in a 2-column grid
+   - Visual feedback with active state
+   - Emoji icons for each pattern type
+   - Status indicator showing selected pattern
+7. **Help Button**: Dashed border, bottom-aligned
 
 ### Canvas Interactions
-- **Click**: Toggle single cell
-- **Drag**: Paint multiple cells
-- **Visual Feedback**: Hover cursor changes to pointer
+- **Click**: Toggle single cell or place selected pattern
+- **Drag**: Paint multiple cells (disabled when pattern selected)
+- **Visual Feedback**:
+  - Pointer cursor in normal mode
+  - Crosshair cursor in pattern placement mode
+  - Smooth fade effect: cells dim over 1 second when dying
+
+### Visual Effects
+- **Fade Animation**: Dead cells gradually fade from full brightness to invisible over 1 second
+  - Independent of simulation speed (runs at 60 FPS)
+  - Provides visual continuity and makes the simulation easier to follow
+  - Living cells maintain full opacity and glow effect
+  - Fading cells lose their glow as they dim
 
 ### Keyboard Shortcuts
 - **Space**: Play/Pause
 - **C**: Clear grid
 - **R**: Randomize
+- **Escape**: Deselect pattern
 
 ## Game Rules Implementation
 
@@ -261,15 +343,38 @@ Dead         | 0-2,4-8   | Dead      | Stays dead
 - Firefox
 - Safari
 
+## Pattern Placement Feature
+
+### How It Works
+1. User clicks a pattern button to select it
+2. Button highlights with gradient background
+3. Status text shows "Placing: [pattern name]"
+4. Cursor changes to crosshair
+5. User clicks on grid to place pattern
+6. Pattern is automatically deselected after placement
+7. User can press Escape to cancel
+
+### Pattern Categories
+- **Spaceships**: Move across the grid (Glider, LWSS)
+- **Oscillators**: Repeat in cycles (Blinker, Toad, Beacon, Pulsar, Pentadecathlon)
+- **Guns**: Generate other patterns (Gosper Glider Gun)
+
+### Implementation Benefits
+- Educational: Users learn about famous Game of Life patterns
+- Convenient: No need to manually draw complex patterns
+- Interactive: Immediate visual feedback
+- Discoverable: Tooltips explain each pattern
+
 ## Future Enhancement Ideas
 
-1. **Patterns Library**: Pre-defined patterns (gliders, blinkers, etc.)
-2. **Save/Load**: Export/import grid states
-3. **Color Themes**: Multiple color schemes
-4. **Cell Age**: Color cells based on how long they've been alive
-5. **Infinite Grid**: Toroidal wrapping or pan/zoom
-6. **Performance**: WebGL renderer for larger grids
-7. **Mobile Touch**: Better touch support for tablets/phones
+1. **Save/Load**: Export/import grid states
+2. **Color Themes**: Multiple color schemes
+3. **Cell Age**: Color cells based on how long they've been alive
+4. **Infinite Grid**: Toroidal wrapping or pan/zoom
+5. **Performance**: WebGL renderer for larger grids
+6. **Mobile Touch**: Better touch support for tablets/phones
+7. **More Patterns**: Add additional classic patterns (Acorn, R-pentomino, etc.)
+8. **Pattern Rotation**: Rotate patterns before placement
 
 ## Troubleshooting
 
@@ -307,6 +412,7 @@ Dead         | 0-2,4-8   | Dead      | Stays dead
 
 ## Requirements Checklist
 
+### Original Requirements
 ✅ Full-screen website covering user screen
 ✅ Grid broken down into 10x10 pixel cells
 ✅ Left-side menu with start/pause button
@@ -318,6 +424,19 @@ Dead         | 0-2,4-8   | Dead      | Stays dead
 ✅ Visual effects and smooth animations
 ✅ Separate documentation
 ✅ No errors
+
+### Enhanced Features
+✅ Preset pattern buttons for 8 classic Game of Life patterns
+✅ Interactive pattern placement with visual feedback
+✅ Pattern categorization (Spaceships, Oscillators, Guns)
+✅ Keyboard shortcut to deselect patterns (Escape)
+✅ Tooltips explaining each pattern
+✅ Drag-to-draw functionality
+✅ Real-time statistics
+✅ Additional keyboard shortcuts
+✅ Smooth fade animation for dying cells (1 second duration)
+✅ Frame-rate independent fade effect (separate from simulation speed)
+✅ Enhanced visual continuity with opacity transitions
 
 ## License & Credits
 
