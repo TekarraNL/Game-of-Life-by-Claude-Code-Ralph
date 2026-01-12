@@ -99,14 +99,17 @@ let patternStatus;
 // Initialize the game when page is fully loaded (including CSS)
 window.addEventListener('load', () => {
     initializeDOM();
-    // Use requestAnimationFrame to ensure layout is fully calculated
+    // Use double requestAnimationFrame to ensure layout is fully calculated                                                                                                                                 
+    // First RAF queues before next paint, second RAF ensures layout is computed   
     requestAnimationFrame(() => {
-        initializeCanvas();
-        initializeGrid();
-        randomizeGrid(INITIAL_FILL_PERCENTAGE);
-        setupEventListeners();
-        updateStats();
-        requestAnimationFrame(gameLoop);
+        requestAnimationFrame(() => { 
+            initializeCanvas();
+            initializeGrid();
+            randomizeGrid(INITIAL_FILL_PERCENTAGE);
+            setupEventListeners();
+            updateStats();
+            requestAnimationFrame(gameLoop);
+        });
     });
 });
 
