@@ -96,15 +96,18 @@ let modalCloseBtn;
 let patternButtons;
 let patternStatus;
 
-// Initialize the game when DOM is loaded
-document.addEventListener('DOMContentLoaded', () => {
+// Initialize the game when page is fully loaded (including CSS)
+window.addEventListener('load', () => {
     initializeDOM();
-    initializeCanvas();
-    initializeGrid();
-    randomizeGrid(INITIAL_FILL_PERCENTAGE);
-    setupEventListeners();
-    updateStats();
-    requestAnimationFrame(gameLoop);
+    // Use requestAnimationFrame to ensure layout is fully calculated
+    requestAnimationFrame(() => {
+        initializeCanvas();
+        initializeGrid();
+        randomizeGrid(INITIAL_FILL_PERCENTAGE);
+        setupEventListeners();
+        updateStats();
+        requestAnimationFrame(gameLoop);
+    });
 });
 
 // Initialize DOM element references
@@ -607,4 +610,3 @@ function setupEventListeners() {
         }
     });
 }
-
