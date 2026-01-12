@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conway's Game of Life</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Left Menu Panel -->
+        <div class="menu-panel">
+            <div class="menu-header">
+                <h1>Game of Life</h1>
+            </div>
+
+            <div class="menu-content">
+                <!-- Play/Pause Button -->
+                <button id="playPauseBtn" class="control-btn">
+                    <span class="btn-icon">▶</span>
+                    <span class="btn-text">Start</span>
+                </button>
+
+                <!-- Speed Control -->
+                <div class="control-group">
+                    <label for="speedControl">
+                        <span class="label-text">Speed</span>
+                        <span id="speedValue" class="speed-value">3/s</span>
+                    </label>
+                    <input type="range" id="speedControl" min="1" max="10" value="3" step="1">
+                    <div class="speed-markers">
+                        <span>Slow</span>
+                        <span>Fast</span>
+                    </div>
+                </div>
+
+                <!-- Statistics -->
+                <div class="stats-panel">
+                    <div class="stat-item">
+                        <span class="stat-label">Generation:</span>
+                        <span id="generation" class="stat-value">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Living Cells:</span>
+                        <span id="livingCells" class="stat-value">0</span>
+                    </div>
+                </div>
+
+                <!-- Additional Controls -->
+                <button id="clearBtn" class="secondary-btn">Clear Grid</button>
+                <button id="randomBtn" class="secondary-btn">Randomize</button>
+
+                <!-- Help Button -->
+                <button id="helpBtn" class="help-btn">
+                    <span class="help-icon">?</span>
+                    <span>How to Play</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Game Canvas -->
+        <div class="canvas-container">
+            <canvas id="gameCanvas"></canvas>
+        </div>
+    </div>
+
+    <!-- Help Modal -->
+    <div id="helpModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <h2>Conway's Game of Life</h2>
+
+            <div class="help-section">
+                <h3>What is it?</h3>
+                <p>Conway's Game of Life is a cellular automaton created by mathematician John Conway in 1970. It's a zero-player game where the evolution is determined by its initial state.</p>
+            </div>
+
+            <div class="help-section">
+                <h3>Rules</h3>
+                <ul>
+                    <li><strong>Birth:</strong> A dead cell with exactly 3 living neighbors becomes alive</li>
+                    <li><strong>Survival:</strong> A living cell with 2 or 3 neighbors stays alive</li>
+                    <li><strong>Death:</strong> A living cell with fewer than 2 neighbors dies (underpopulation)</li>
+                    <li><strong>Death:</strong> A living cell with more than 3 neighbors dies (overpopulation)</li>
+                </ul>
+            </div>
+
+            <div class="help-section">
+                <h3>How to Use</h3>
+                <ul>
+                    <li><strong>Click on cells</strong> to toggle them alive or dead</li>
+                    <li><strong>Start/Pause</strong> button to control the simulation</li>
+                    <li><strong>Speed slider</strong> to adjust how fast generations evolve (1-10 per second)</li>
+                    <li><strong>Clear Grid</strong> to remove all living cells</li>
+                    <li><strong>Randomize</strong> to create a new random pattern (30% filled)</li>
+                </ul>
+            </div>
+
+            <button class="modal-close-btn">Got it!</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
