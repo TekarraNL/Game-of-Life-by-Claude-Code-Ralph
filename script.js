@@ -1,6 +1,6 @@
 // Game of Life Configuration
 const CELL_SIZE = 10;
-const INITIAL_FILL_PERCENTAGE = 0.3;
+const INITIAL_FILL_PERCENTAGE = 0.2;
 
 // Preset Patterns (1 = alive, 0 = dead)
 const PATTERNS = {
@@ -74,7 +74,7 @@ let nextGrid = [];
 let opacityGrid = []; // Track opacity for fade effect (0.0 to 1.0)
 let isRunning = false;
 let generationCount = 0;
-let speed = 3; // generations per second
+let speed = 5; // generations per second
 let lastUpdateTime = 0;
 let lastFadeUpdateTime = 0;
 let updateInterval = 1000 / speed;
@@ -607,3 +607,4 @@ function setupEventListeners() {
         }
     });
 }
+
