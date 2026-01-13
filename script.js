@@ -96,16 +96,40 @@ let modalCloseBtn;
 let patternButtons;
 let patternStatus;
 
-// Initialize the game when page is fully loaded (including CSS)
+// Initialize the game
 window.addEventListener('load', () => {
     initializeDOM();
-    initializeCanvas();
-    initializeGrid();
-    randomizeGrid(INITIAL_FILL_PERCENTAGE);
     setupEventListeners();
     updateStats();
-    requestAnimationFrame(gameLoop);
-});
+    
+    // Use ResizeObserver to wait for the container to have actual dimensions
+    // This fixes the loading issue and handles window resizing automatically
+    const container = document.querySelector('.canvas-container');
+    const observer = new ResizeObserver(entries => {
+        const entry = entries[0];
+        // Only initialize if we have valid dimensions
+        if (entry.contentRect.width > 0 && entry.contentRect.height > 0) {
+            
+            // Save running state if this is a resize event
+            const wasRunning = isRunning;
+            if (isRunning) togglePlayPause();
+
+            initializeCanvas();
+            initializeGrid();
+            randomizeGrid(INITIAL_FILL_PERCENTAGE);
+            
+            // Restore running state if needed
+            if (wasRunning) togglePlayPause();
+            
+            // Start the loop only once
+            if (generationCount === 0 && !isRunning) {
+                requestAnimationFrame(gameLoop);
+            }
+        }
+    });
+    
+    observer.observe(container);
+})
 
 // Initialize DOM element references
 function initializeDOM() {
@@ -581,16 +605,6 @@ function setupEventListeners() {
         if (event.target === modal) {
             hideHelpModal();
         }
-    });
-
-    // Handle window resize
-    window.addEventListener('resize', () => {
-        const wasRunning = isRunning;
-        if (isRunning) togglePlayPause();
-
-        initializeCanvas();
-        initializeGrid();
-        randomizeGrid(INITIAL_FILL_PERCENTAGE);
     });
 
     // Keyboard shortcuts
