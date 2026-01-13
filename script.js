@@ -97,31 +97,37 @@ let patternButtons;
 let patternStatus;
 
 // Initialize the game
-window.addEventListener('load', () => {
+function initGame() {
     initializeDOM();
     setupEventListeners();
     updateStats();
     
-    // Use ResizeObserver to wait for the container to have actual dimensions
-    // This fixes the loading issue and handles window resizing automatically
+    // Watch for the container to actually get dimensions
     const container = document.querySelector('.canvas-container');
     const observer = new ResizeObserver(entries => {
         const entry = entries[0];
-        // Only initialize if we have valid dimensions
+        
+        // Only initialize if the container has real size (width > 0)
         if (entry.contentRect.width > 0 && entry.contentRect.height > 0) {
-            
-            // Save running state if this is a resize event
             const wasRunning = isRunning;
             if (isRunning) togglePlayPause();
 
             initializeCanvas();
-            initializeGrid();
-            randomizeGrid(INITIAL_FILL_PERCENTAGE);
             
-            // Restore running state if needed
+            // Only re-randomize if the grid hasn't been set up yet
+            if (grid.length === 0) {
+                initializeGrid();
+                randomizeGrid(INITIAL_FILL_PERCENTAGE);
+            } else {
+                // If resizing, we need to rebuild grid array but could try to preserve data
+                // For simplicity, we re-init here to match window resize behavior
+                initializeGrid();
+                randomizeGrid(INITIAL_FILL_PERCENTAGE);
+            }
+            
             if (wasRunning) togglePlayPause();
             
-            // Start the loop only once
+            // Start the loop just once
             if (generationCount === 0 && !isRunning) {
                 requestAnimationFrame(gameLoop);
             }
@@ -129,7 +135,14 @@ window.addEventListener('load', () => {
     });
     
     observer.observe(container);
-})
+}
+
+// Robust loading check for preview environments
+if (document.readyState === 'loading') {
+    window.addEventListener('DOMContentLoaded', initGame);
+} else {
+    initGame();
+}
 
 // Initialize DOM element references
 function initializeDOM() {
